@@ -89,10 +89,11 @@ def start_server():
 
 def main():
     server_file_path = CURRENT_DIRECTORY
-
-    # Attempt to connect to the server
-    rcon = connect_to_server(HOST, PORT)
+    host, port = HOST, PORT
     
+    # Attempt to connect to the server
+    rcon = connect_to_server(host, port)
+
     # Stop the server
     execute_rcon_commands(rcon)
 
@@ -108,4 +109,4 @@ def main():
 
 if __name__ == "__main__":
     init_logging("backup.log")
-    # main()
+    main()
