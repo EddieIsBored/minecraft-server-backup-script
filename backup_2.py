@@ -1,13 +1,13 @@
 import logging
-from logging.handlers import RotatingFileHandler
-import mctools  # Import the RCONClient
+from logging.handlers import RotatingFileHandler 
+import mctools
 import time
 import os
 import tarfile
 from datetime import datetime
 import subprocess
-backup_logger = logging.getLogger("backup_logger")
 
+backup_logger = logging.getLogger("backup_logger")
 SERVER_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 HOST = '127.0.0.1'  # Hostname of the Minecraft server
 PORT = 25575  # Port number of the RCON server
@@ -17,20 +17,26 @@ def init_logging(path):
     backup_logger.setLevel(logging.INFO)
     rot_handler = RotatingFileHandler(path, maxBytes=2*1024*1024, backupCount=5)
     formatter =  logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
     # Add handler to the logger
     rot_handler.setFormatter(formatter)
     backup_logger.addHandler(rot_handler)
 
 def make_tarfile(filepath):
-    
-    output_filename = f"{filepath}/Backups/Backup_{datetime.today().strftime('%Y-%m-%d_%H-%M-%S')}.tar.gz"
-    source_filename = f"{filepath}/world"
 
-    with tarfile.open(output_filename, "w:gz") as tar:
+    backups_folder = os.path.join(filepath, 'Backups')
+
+    if not os.path.exists(backups_folder):
+        os.makedirs(backups_folder)
+
+    current_time_and_date = datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
+
+    output_filename =  os.path.join(backups_folder, current_time_and_date + '.tar.gz')
+    source_filename = os.path.join(filepath, 'world')
+
+    with tarfile.open(output_filename, "w:gz", compresslevel=6) as tar:
         try:
-            tar.add(source_filename, arcname=os.path.basename(source_filename))
-            backup_logger.info(f"Successfully zipped {source_filename}")
+            tar.add(source_filename)
+            backup_logger.info(f"Successfully compressed {source_filename}")
         except Exception as e:
             backup_logger.error(f"Failed to zip world file with error: {e}")
             exit(1)
@@ -96,4 +102,5 @@ def main():
 
 if __name__ == "__main__":
     init_logging("backup.log")
-    #main()
+    make_tarfile(SERVER_FILE_PATH)
+    # main()
