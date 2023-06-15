@@ -8,7 +8,7 @@ from datetime import datetime
 import subprocess
 
 backup_logger = logging.getLogger("backup_logger")
-SERVER_FILE_PATH = os.path.dirname(os.path.realpath(__file__))
+CURRENT_DIRECTORY = os.path.dirname(os.path.realpath(__file__)) 
 HOST = '127.0.0.1'  # Hostname of the Minecraft server
 PORT = 25575  # Port number of the RCON server
 
@@ -21,7 +21,7 @@ def init_logging(path):
     rot_handler.setFormatter(formatter)
     backup_logger.addHandler(rot_handler)
 
-def make_tarfile(filepath):
+def compress_and_backup_world(filepath):
 
     backups_folder = os.path.join(filepath, 'Backups')
 
@@ -47,21 +47,21 @@ def execute_rcon_commands(rcon):
         # Send command to RCON - broadcast message to all players:
         rcon.command("say Server will shut down in 2 minutes")
         # Wait 2 mins
-        time.sleep(10)
+        time.sleep(120)
         # Stop the server!
         rcon.command('stop')
 
 def delete_old_backups(filepath):
-    backup_directory = f"{filepath}/Backups/"
+    backups_folder = os.path.join(filepath, 'Backups')
 
     # Get the current time
     now = datetime.now()
 
     # Loop through all the files in the directory
-    for filename in os.listdir(backup_directory):
+    for filename in os.listdir(backups_folder):
 
         # Get the creation time of the file
-        filepath = os.path.join(backup_directory, filename)
+        filepath = os.path.join(backups_folder, filename)
         creation_time = datetime.fromtimestamp(os.path.getmtime(filepath))
 
         # Calculate the difference between the creation time and the current time
@@ -71,25 +71,15 @@ def delete_old_backups(filepath):
         if time_difference.days > 3:
             os.remove(filepath)
 
-def main():
-
+def connect_to_server(host, port):
     # Create the RCONClient:
     try:
-        rcon = mctools.RCONClient(HOST, port=PORT)
+        return mctools.RCONClient(host, port=port)
     except Exception as e:
         backup_logger.error(f"Failed to connect to RCON with error: {e}")
         exit(1)
 
-    # Stop the server
-    execute_rcon_commands(rcon)
-
-    # Back it up
-    make_tarfile(SERVER_FILE_PATH)
-
-    # Probably should have 2 minutes before turning it back on, allowing the world to fully backup.
-    time.sleep(30)
-
-    # Start the server back up
+def start_server():
     try: 
         command = "screen -S minecraft -p 0 -X stuff 'sh startserver.sh\n'"
         subprocess.run(command, shell=True) 
@@ -97,10 +87,25 @@ def main():
     except Exception as e:
         backup_logger.error(f"Failed to launch server with error: {e}")
 
-    delete_old_backups(SERVER_FILE_PATH)
+def main():
+    server_file_path = CURRENT_DIRECTORY
+
+    # Attempt to connect to the server
+    rcon = connect_to_server(HOST, PORT)
+    
+    # Stop the server
+    execute_rcon_commands(rcon)
+
+    # Back the world up
+    compress_and_backup_world(server_file_path)
+
+    # Start the server back up
+    start_server()
+
+    # Delete old backups
+    delete_old_backups(server_file_path)
 
 
 if __name__ == "__main__":
     init_logging("backup.log")
-    make_tarfile(SERVER_FILE_PATH)
     # main()
