@@ -119,19 +119,20 @@ def arg_setup():
     parser = argparse.ArgumentParser(
         formatter_class=CustomHelpFormatter,
     )
-    parser.add_argument("-pw", "--password", type=str, help="The RCON password of the server", default="bananarama")
+
+    parser.add_argument("--password", type=str, help="The RCON password of the server", default="bananarama")
     parser.add_argument("--host", type=str, help="The host of the server", default=HOST)
     parser.add_argument("--port", type=int, help="The port of the server", default=PORT)
-    parser.add_argument("-bl", "--backup-path", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
-    parser.add_argument("-bn", "--backup-name", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
-    parser.add_argument("-wl", "--world-path", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
-    parser.add_argument("-wn", "--world-name", type=str, help="Name of the world", default='world')
-    parser.add_argument("-cl", "--compresslevel", type=int, help="Level of compression", default=6)
-    parser.add_argument("-md", "--maxdays", type=int, help="Max days a backup should be kept", default=7)
-    parser.add_argument("-ll", "--log-path", type=str, help="Location of where to store log files", default=CURRENT_DIRECTORY)
-    parser.add_argument("-ln", "--logname", type=str, help="Name of log file", default="backup.log")
-    parser.add_argument("-ls", "--logsize", type=int, help ="Max size of logfiles (in MB)", default=200)
-    parser.add_argument("-lf", "--logfiles", type=int, help ="Max number of logfiles to rotate", default=5)
+    parser.add_argument("--backup-path", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
+    parser.add_argument("--backup-name", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
+    parser.add_argument("--world-path", type=str, help="Location of where to store backups", default=CURRENT_DIRECTORY)
+    parser.add_argument("--world-name", type=str, help="Name of the world", default='world')
+    parser.add_argument("--compresslevel", type=int, help="Level of compression", default=6)
+    parser.add_argument("--maxdays", type=int, help="Max days a backup should be kept", default=7)
+    parser.add_argument("--log-path", type=str, help="Location of where to store log files", default=CURRENT_DIRECTORY)
+    parser.add_argument("--logname", type=str, help="Name of log file", default="backup.log")
+    parser.add_argument("--logsize", type=int, help ="Max size of logfiles (in MB)", default=200)
+    parser.add_argument("--logfiles", type=int, help ="Max number of logfiles to rotate", default=5)
     
     args = parser.parse_args()
 
